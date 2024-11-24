@@ -1,4 +1,4 @@
-g!/bin/bash -l
+#!/bin/bash -l
 #SBATCH --job-name=mpi_forecasting    # Job name
 #SBATCH --output=logs/%x-%j.out       # Standard output log (%x=job name, %j=job ID)
 #SBATCH --error=logs/%x-%j.err        # Error log
