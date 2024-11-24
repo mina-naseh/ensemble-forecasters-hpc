@@ -1,6 +1,6 @@
 import jax # For installation: pip3 install jax, pip3 install jaxlib
 import jax.numpy as jnp
-#The next project consists of making an ensemble of forecasters on HPC. 
+# The next project consists of making an ensemble of forecasters on HPC. 
 
 X = jnp.array([[0.1, 0.4], [0.1, 0.5], [0.1, 0.6]])  # input example
 y = jnp.array([[0.1, 0.7]])  # expected output

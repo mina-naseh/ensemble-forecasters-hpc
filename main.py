@@ -1,32 +1,78 @@
+from mpi4py import MPI
 import jax
 import jax.numpy as jnp
 from forecaster import forecast_1step_with_loss
-from ensemble import create_ensemble, train_ensemble, aggregate_forecasts
+from ensemble import create_ensemble, train_ensemble_mpi, aggregate_forecasts_mpi
+from config import X, y, W, b, num_forecasters, noise_std, num_epochs, horizon
+from plotter import (
+    plot_prediction_trajectories,
+    plot_uncertainty,
+    plot_prediction_distribution,
+    plot_training_loss,
+    plot_prediction_heatmap
+)
+import os
 
-# Initialize example data and parameters
-X = jnp.array([[0.1, 0.4], [0.1, 0.5], [0.1, 0.6]])  # Input example
-y = jnp.array([[0.1, 0.7]])  # Expected output
-W = jnp.array([[0., 1., 0., 1., 0., 1.], [0., 1., 0, 1., 0., 1.]])  # Neural network weights
-b = jnp.array([0.1])  # Bias
+def main():
+    comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()
 
-num_forecasters = 3
-noise_std = 0.1
-num_epochs = 20
-horizon = 5
+    if rank == 0:
+        print("Initializing ensemble forecasting with MPI...\n")
 
-grad = jax.grad(forecast_1step_with_loss)
+    # Gradient computation
+    grad = jax.grad(forecast_1step_with_loss)
 
-ensemble = create_ensemble(num_forecasters, W, b, noise_std)
+    # Create or broadcast the ensemble
+    if rank == 0:
+        print("Creating ensemble...")
+        ensemble = create_ensemble(num_forecasters, W, b, noise_std)
+        print(f"Ensemble created with {num_forecasters} forecasters.")
+    else:
+        ensemble = None
 
-trained_ensemble = train_ensemble(ensemble, X, y, grad, num_epochs)
+    ensemble = comm.bcast(ensemble, root=0)
+    if rank == 0:
+        print("Ensemble broadcasted to all ranks.\n")
 
-predictions = aggregate_forecasts(trained_ensemble, X, horizon)
+    # Train ensemble using MPI
+    if rank == 0:
+        print("Starting training...")
+    trained_ensemble, loss_history = train_ensemble_mpi(
+        ensemble, X, y, grad, num_epochs, track_loss=True
+    )
+    if rank == 0:
+        print("Training completed.\n")
 
-print(f"Predictions from ensemble: {predictions}")
+    # Make predictions and aggregate results
+    if rank == 0:
+        print("Aggregating predictions...")
+        predictions = aggregate_forecasts_mpi(trained_ensemble, X, horizon)
+        predictions = jnp.array(predictions)
 
-predictions = jnp.array(predictions)
-mean_prediction = jnp.mean(predictions, axis=0)
-std_dev = jnp.std(predictions, axis=0)
+        # Calculate mean and standard deviation
+        mean_prediction = jnp.mean(predictions, axis=0)
+        std_dev = jnp.std(predictions, axis=0)
 
-print(f"Mean prediction: {mean_prediction}")
-print(f"Standard deviation: {std_dev}")
+        print("Predictions aggregated.")
+        print(f"Mean prediction: {mean_prediction}")
+        print(f"Standard deviation: {std_dev}\n")
+
+        # Ensure the `plots` folder exists
+        os.makedirs("plots", exist_ok=True)
+
+        # Create plots
+        print("Generating plots...")
+        plot_prediction_trajectories(predictions, horizon)
+        plot_uncertainty(mean_prediction, std_dev, horizon)
+        plot_prediction_distribution(predictions)
+        plot_prediction_heatmap(predictions)
+
+        # Plot training loss if loss history is tracked
+        if loss_history is not None:
+            plot_training_loss(loss_history)
+
+        print("All plots saved in the 'plots/' directory.")
+
+if __name__ == "__main__":
+    main()
