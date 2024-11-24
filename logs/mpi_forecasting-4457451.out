@@ -1,0 +1,24 @@
+Initializing ensemble forecasting with MPI...
+
+Creating ensemble...
+Ensemble created with 4 forecasters.
+Rank 2: Local ensemble size = 1
+Ensemble broadcasted to all ranks.
+
+Starting training...
+Rank 0: Local ensemble size = 1
+Rank 6: Local ensemble size = 0
+Rank 4: Local ensemble size = 0
+Rank 1: Local ensemble size = 1
+Rank 3: Local ensemble size = 1
+Rank 5: Local ensemble size = 0
+Rank 7: Local ensemble size = 0
+Training completed.
+
+Aggregating predictions...
+Rank 0: Prediction: [[0.42229545 0.5718044 ]
+ [0.51492786 0.67154694]
+ [0.61938655 0.7919854 ]
+ [0.7750634  0.95988   ]
+ [1.0469838  1.2692415 ]]
+Rank 0: Entering comm.gather with 1 predictions.

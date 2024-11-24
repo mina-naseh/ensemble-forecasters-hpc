@@ -1,0 +1,2 @@
+mpiexec: Forwarding signal 18 to job
+slurmstepd: error: *** JOB 4457451 ON aion-0242 CANCELLED AT 2024-11-24T23:26:29 ***
