@@ -48,13 +48,15 @@ def main():
     if rank == 0:
         print("Aggregating predictions...")
         predictions = aggregate_forecasts_mpi(trained_ensemble, X, horizon)
+        print("Predictions aggregated.\n")
         predictions = jnp.array(predictions)
+        print(f"Predictions: {predictions}")
 
         # Calculate mean and standard deviation
         mean_prediction = jnp.mean(predictions, axis=0)
         std_dev = jnp.std(predictions, axis=0)
 
-        print("Predictions aggregated.")
+        # print("Predictions aggregated.")
         print(f"Mean prediction: {mean_prediction}")
         print(f"Standard deviation: {std_dev}\n")
 
