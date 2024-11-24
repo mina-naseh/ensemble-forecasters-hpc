@@ -3,6 +3,7 @@ import jax.numpy as jnp
 from mpi4py import MPI
 from forecaster import training_loop, forecast, forecast_1step_with_loss
 
+
 # Initialize an ensemble of forecasters
 def create_ensemble(num_forecasters: int, W: jnp.array, b: jnp.array, noise_std: float):
     """
@@ -29,6 +30,7 @@ def create_ensemble(num_forecasters: int, W: jnp.array, b: jnp.array, noise_std:
         ensemble.append((W_init, b_init))
     return ensemble
 
+
 # Train each forecaster in the ensemble using MPI
 def train_ensemble_mpi(ensemble, X, y, grad, num_epochs, track_loss=False):
     """
@@ -49,8 +51,10 @@ def train_ensemble_mpi(ensemble, X, y, grad, num_epochs, track_loss=False):
     rank = comm.Get_rank()
     size = comm.Get_size()
 
-    # Distribute forecasters among MPI ranks
-    local_ensemble = ensemble[rank::size]  # Each rank gets a subset of forecasters
+    # Dynamic forecaster distribution
+    local_ensemble = [
+        ensemble[i] for i in range(len(ensemble)) if i % size == rank
+    ]
     print(f"Rank {rank}: Local ensemble size = {len(local_ensemble)}")
 
     local_trained = []
@@ -59,7 +63,6 @@ def train_ensemble_mpi(ensemble, X, y, grad, num_epochs, track_loss=False):
     # Train forecasters in the local ensemble
     for W, b in local_ensemble:
         if track_loss:
-            # Track loss history for this forecaster
             losses = []
             for epoch in range(num_epochs):
                 delta = grad((W, b), X, y)
@@ -86,6 +89,7 @@ def train_ensemble_mpi(ensemble, X, y, grad, num_epochs, track_loss=False):
         return trained_ensemble, None
     return None, None
 
+
 # Aggregate predictions from the ensemble using MPI
 def aggregate_forecasts_mpi(ensemble, X, horizon):
     """
@@ -103,27 +107,30 @@ def aggregate_forecasts_mpi(ensemble, X, horizon):
     rank = comm.Get_rank()
     size = comm.Get_size()
 
-    # Distribute forecasters among MPI ranks
-    local_ensemble = ensemble[rank::size]  # Each rank gets a subset of forecasters
+    # Dynamic forecaster distribution
+    local_ensemble = [
+        ensemble[i] for i in range(len(ensemble)) if i % size == rank
+    ]
     local_predictions = []
 
     # Generate predictions locally
     for W, b in local_ensemble:
         y_predicted = forecast(horizon, X, W, b)
-        print(f"Rank {rank}: Prediction: {y_predicted}")
+        print(f"Rank {rank}: Generated prediction with shape {y_predicted.shape}.")
         local_predictions.append(y_predicted)
+        print("local_predictions", local_predictions)
 
     # Gather predictions on rank 0
     print(f"Rank {rank}: Entering comm.gather with {len(local_predictions)} predictions.")
-    gathered_predictions = comm.gather(local_predictions, root=0)       
+    gathered_predictions = comm.gather(local_predictions, root=0)
     print(f"Rank {rank}: Finished comm.gather.")
-
 
     if rank == 0:
         # Combine results from all ranks
         all_predictions = [pred for rank_preds in gathered_predictions for pred in rank_preds]
         return all_predictions
     return None
+
 
 # Debugging and Profiling Utilities
 def debug_and_profile(rank, stage, start_time, end_time, additional_info=""):
@@ -139,4 +146,3 @@ def debug_and_profile(rank, stage, start_time, end_time, additional_info=""):
     """
     elapsed_time = end_time - start_time
     print(f"Rank {rank}: {stage} completed in {elapsed_time:.4f} seconds. {additional_info}")
-

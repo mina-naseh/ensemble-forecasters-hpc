@@ -1,9 +1,9 @@
 import jax.numpy as jnp
 
 # Default settings for local runs
-num_forecasters = 4
-noise_std = 0.1
-num_epochs = 3
+num_forecasters = 2
+noise_std = 0.01
+num_epochs = 1
 horizon = 5
 
 # Dataset
