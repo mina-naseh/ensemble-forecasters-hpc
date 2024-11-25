@@ -1,0 +1,128 @@
+Rank 4: Waiting for broadcast...
+
+Rank 6: Waiting for broadcast...
+
+Rank 7: Waiting for broadcast...
+
+Rank 5: Waiting for broadcast...
+
+Rank 2: Waiting for broadcast...
+
+Rank 3: Waiting for broadcast...
+
+Rank 0: Initializing ensemble forecasting with MPI...
+Total MPI processes: 8
+
+Rank 1: Waiting for broadcast...
+
+Rank 0: Creating ensemble...
+Rank 1: Received ensemble broadcast.
+Rank 1: Local ensemble size = 1
+Rank 2: Received ensemble broadcast.
+Rank 2: Local ensemble size = 1
+Rank 0: Ensemble created with 4 forecasters.
+Rank 0: Received ensemble broadcast.
+Rank 0: Starting training...
+Rank 0: Local ensemble size = 1
+Rank 3: Received ensemble broadcast.
+Rank 3: Local ensemble size = 1
+Rank 7: Received ensemble broadcast.
+Rank 7: Local ensemble size = 0
+Rank 4: Received ensemble broadcast.
+Rank 4: Local ensemble size = 0
+Rank 6: Received ensemble broadcast.
+Rank 6: Local ensemble size = 0
+Rank 5: Received ensemble broadcast.
+Rank 5: Local ensemble size = 0
+Rank 0: Training completed.
+
+Rank 3: Received trained ensemble broadcast.
+Rank 3: Starting prediction aggregation...
+Rank 2: Received trained ensemble broadcast.
+Rank 2: Starting prediction aggregation...
+Rank 1: Received trained ensemble broadcast.
+Rank 1: Starting prediction aggregation...
+Rank 0: Received trained ensemble broadcast.
+Rank 0: Starting prediction aggregation...
+Rank 4: Received trained ensemble broadcast.
+Rank 4: Starting prediction aggregation...
+Rank 4: Entering comm.gather with 0 predictions.
+Rank 4: Finished comm.gather.
+Rank 5: Received trained ensemble broadcast.
+Rank 5: Starting prediction aggregation...
+Rank 5: Entering comm.gather with 0 predictions.
+Rank 5: Finished comm.gather.
+Rank 6: Received trained ensemble broadcast.
+Rank 6: Starting prediction aggregation...
+Rank 6: Entering comm.gather with 0 predictions.
+Rank 6: Finished comm.gather.
+Rank 7: Received trained ensemble broadcast.
+Rank 7: Starting prediction aggregation...
+Rank 7: Entering comm.gather with 0 predictions.
+Rank 7: Finished comm.gather.
+Rank 3: Forecaster 0 generated prediction with shape (5, 2).
+Rank 3: Entering comm.gather with 1 predictions.
+Rank 3: Finished comm.gather.
+Rank 2: Forecaster 0 generated prediction with shape (5, 2).
+Rank 2: Entering comm.gather with 1 predictions.
+Rank 2: Finished comm.gather.
+Rank 0: Forecaster 0 generated prediction with shape (5, 2).
+Rank 0: Entering comm.gather with 1 predictions.
+Rank 0: Finished comm.gather.
+Rank 0: Aggregation completed.
+Rank 1: Forecaster 0 generated prediction with shape (5, 2).
+Rank 1: Entering comm.gather with 1 predictions.
+Rank 1: Finished comm.gather.
+Rank 0: Predictions: [[[0.15419483 0.64645463]
+  [0.30853385 0.8762178 ]
+  [0.52004486 1.2252645 ]
+  [0.86274725 1.8049235 ]
+  [1.5165584  2.8802865 ]]
+
+ [[0.15044981 0.6501963 ]
+  [0.30900037 0.88590693]
+  [0.52713215 1.2440039 ]
+  [0.8800267  1.8421134 ]
+  [1.5526973  2.9513073 ]]
+
+ [[0.15077835 0.64987755]
+  [0.3104992  0.8870083 ]
+  [0.52946615 1.2511145 ]
+  [0.8901478  1.8627478 ]
+  [1.5803295  3.001319  ]]
+
+ [[0.15421742 0.64644384]
+  [0.30902708 0.87721467]
+  [0.5244515  1.2257311 ]
+  [0.8704605  1.8035228 ]
+  [1.5295241  2.8755524 ]]]
+Rank 0: Mean prediction: [[0.1524101  0.64824307]
+ [0.30926514 0.8815869 ]
+ [0.5252737  1.2365285 ]
+ [0.87584555 1.8283268 ]
+ [1.5447774  2.9271162 ]]
+Rank 0: Standard deviation: [[0.00179979 0.00179739]
+ [0.00073899 0.00489893]
+ [0.00350169 0.01131473]
+ [0.01027863 0.02518841]
+ [0.02426754 0.05230464]]
+
+Rank 0: Generating plots...
+Saved plot: plots/prediction_trajectories.png
+Saved plot: plots/uncertainty_bounds.png
+Initial predictions shape: (4, 5, 2)
+Aggregated predictions shape (after mean along features): (4, 5)
+Boxplot data length: 5, Each entry length: [4, 4, 4, 4, 4]
+Saved plot: plots/prediction_distribution.png
+Saved plot: plots/prediction_heatmap.png
+Loss history: [[0.6858159899711609, 0.2013178914785385, 0.08733967691659927, 0.05103500187397003, 0.033959709107875824, 0.023564979434013367, 0.016550622880458832, 0.011663202196359634, 0.008226675912737846, 0.005804184824228287], [0.6621286869049072, 0.18753698468208313, 0.07818372547626495, 0.04468446597456932, 0.029500078409910202, 0.020422369241714478, 0.01433395966887474, 0.010099316015839577, 0.007123230025172234, 0.0050255898386240005], [0.68053138256073, 0.1918686330318451, 0.07956483960151672, 0.04533464089035988, 0.029896024614572525, 0.020689580589532852, 0.014520175755023956, 0.010230252519249916, 0.007215512916445732, 0.005090699996799231], [0.7062256336212158, 0.205311581492424, 0.08814284205436707, 0.051211606711149216, 0.03400879353284836, 0.023584969341754913, 0.016561880707740784, 0.011670626699924469, 0.00823181588202715, 0.005807789042592049]]
+Rank 1: Total execution time: 2.2976 seconds.
+Rank 2: Total execution time: 2.2976 seconds.
+Rank 3: Total execution time: 2.2976 seconds.
+Saved plot: plots/training_loss.png
+Rank 0: All plots saved in the 'plots/' directory.
+Rank 0: Total execution time: 2.2974 seconds.
+Rank 5: Total execution time: 2.7704 seconds.
+Rank 6: Total execution time: 2.7708 seconds.
+Rank 4: Total execution time: 2.7708 seconds.
+Rank 7: Total execution time: 2.7708 seconds.

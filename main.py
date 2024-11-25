@@ -88,7 +88,7 @@ def main():
 
             # Plot training loss if loss history is available
             if loss_history is not None:
-                print(f"Loss history: {loss_history}")
+                # print(f"Loss history: {loss_history}")
                 plot_training_loss(loss_history)
 
             print("Rank 0: All plots saved in the 'plots/' directory.")
