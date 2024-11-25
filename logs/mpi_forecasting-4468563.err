@@ -1,0 +1,59 @@
+Traceback (most recent call last):
+  File "/mnt/aiongpfs/users/mnaseh/ensemble-forecasters-hpc/main.py", line 5, in <module>
+    from ensemble import create_ensemble, train_ensemble_mpi, aggregate_forecasts_mpi, export_statistics_to_csv
+  File "/mnt/aiongpfs/users/mnaseh/ensemble-forecasters-hpc/ensemble.py", line 5, in <module>
+    import pandas as pd
+ModuleNotFoundError: No module named 'pandas'
+Traceback (most recent call last):
+  File "/mnt/aiongpfs/users/mnaseh/ensemble-forecasters-hpc/main.py", line 5, in <module>
+    from ensemble import create_ensemble, train_ensemble_mpi, aggregate_forecasts_mpi, export_statistics_to_csv
+  File "/mnt/aiongpfs/users/mnaseh/ensemble-forecasters-hpc/ensemble.py", line 5, in <module>
+    import pandas as pd
+ModuleNotFoundError: No module named 'pandas'
+Traceback (most recent call last):
+  File "/mnt/aiongpfs/users/mnaseh/ensemble-forecasters-hpc/main.py", line 5, in <module>
+    from ensemble import create_ensemble, train_ensemble_mpi, aggregate_forecasts_mpi, export_statistics_to_csv
+  File "/mnt/aiongpfs/users/mnaseh/ensemble-forecasters-hpc/ensemble.py", line 5, in <module>
+    import pandas as pd
+ModuleNotFoundError: No module named 'pandas'
+Traceback (most recent call last):
+  File "/mnt/aiongpfs/users/mnaseh/ensemble-forecasters-hpc/main.py", line 5, in <module>
+    from ensemble import create_ensemble, train_ensemble_mpi, aggregate_forecasts_mpi, export_statistics_to_csv
+  File "/mnt/aiongpfs/users/mnaseh/ensemble-forecasters-hpc/ensemble.py", line 5, in <module>
+    import pandas as pd
+ModuleNotFoundError: No module named 'pandas'
+Traceback (most recent call last):
+  File "/mnt/aiongpfs/users/mnaseh/ensemble-forecasters-hpc/main.py", line 5, in <module>
+Traceback (most recent call last):
+  File "/mnt/aiongpfs/users/mnaseh/ensemble-forecasters-hpc/main.py", line 5, in <module>
+Traceback (most recent call last):
+  File "/mnt/aiongpfs/users/mnaseh/ensemble-forecasters-hpc/main.py", line 5, in <module>
+Traceback (most recent call last):
+  File "/mnt/aiongpfs/users/mnaseh/ensemble-forecasters-hpc/main.py", line 5, in <module>
+    from ensemble import create_ensemble, train_ensemble_mpi, aggregate_forecasts_mpi, export_statistics_to_csv
+  File "/mnt/aiongpfs/users/mnaseh/ensemble-forecasters-hpc/ensemble.py", line 5, in <module>
+    from ensemble import create_ensemble, train_ensemble_mpi, aggregate_forecasts_mpi, export_statistics_to_csv
+  File "/mnt/aiongpfs/users/mnaseh/ensemble-forecasters-hpc/ensemble.py", line 5, in <module>
+    from ensemble import create_ensemble, train_ensemble_mpi, aggregate_forecasts_mpi, export_statistics_to_csv
+  File "/mnt/aiongpfs/users/mnaseh/ensemble-forecasters-hpc/ensemble.py", line 5, in <module>
+    from ensemble import create_ensemble, train_ensemble_mpi, aggregate_forecasts_mpi, export_statistics_to_csv
+  File "/mnt/aiongpfs/users/mnaseh/ensemble-forecasters-hpc/ensemble.py", line 5, in <module>
+    import pandas as pd
+ModuleNotFoundError: No module named 'pandas'
+    import pandas as pd
+ModuleNotFoundError: No module named 'pandas'
+    import pandas as pd
+ModuleNotFoundError: No module named 'pandas'
+    import pandas as pd
+ModuleNotFoundError: No module named 'pandas'
+--------------------------------------------------------------------------
+Primary job  terminated normally, but 1 process returned
+a non-zero exit code. Per user-direction, the job has been aborted.
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+mpiexec detected that one or more processes exited with non-zero status, thus causing
+the job to be terminated. The first process to do so was:
+
+  Process name: [[54749,1],0]
+  Exit code:    1
+--------------------------------------------------------------------------

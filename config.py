@@ -1,9 +1,9 @@
 import jax.numpy as jnp
 
 # parameters for runs
-num_forecasters = 4
-noise_std = 0.01
-num_epochs = 2
+num_forecasters = 5000
+noise_std = 0.1
+num_epochs = 100
 horizon = 5
 
 # Dataset
