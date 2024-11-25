@@ -2,7 +2,7 @@
 
 Ensemble forecasting is a method used to predict the weather by running multiple simulations of a weather model with slightly different initial conditions and/or model configurations. This helps account for uncertainties in the initial state of the atmosphere and the inherent chaos in weather systems.
 
-[thumbnail_Outlook-ryivnhvk.png]
+![Ensembles][thumbnail_Outlook-ryivnhvk.png]
 
 The small variations at the start (left side of the diagram) represent the limited accuracy of observations or data used to initialize the model. Even slight errors can lead to widely different outcomes due to the chaotic nature of weather systems (a phenomenon known as the butterfly effect).
 
