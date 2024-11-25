@@ -2,9 +2,17 @@ import jax
 import jax.numpy as jnp
 from mpi4py import MPI
 from forecaster import training_loop, forecast, forecast_1step_with_loss
+import pandas as pd
+import numpy as np
+import os
 
 
-# Initialize an ensemble of forecasters
+def ensure_dir(directory):
+    """Ensure the directory exists."""
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+
 def create_ensemble(num_forecasters: int, W: jnp.array, b: jnp.array, noise_std: float):
     """
     Create an ensemble of forecasters with different initializations.
@@ -31,7 +39,6 @@ def create_ensemble(num_forecasters: int, W: jnp.array, b: jnp.array, noise_std:
     return ensemble
 
 
-# Train each forecaster in the ensemble using MPI
 def train_ensemble_mpi(ensemble, X, y, grad, num_epochs, track_loss=False):
     """
     Train the ensemble of forecasters using MPI for parallelism.
@@ -69,7 +76,7 @@ def train_ensemble_mpi(ensemble, X, y, grad, num_epochs, track_loss=False):
                 W -= 0.1 * delta[0]
                 b -= 0.1 * delta[1]
                 loss = forecast_1step_with_loss((W, b), X, y)
-                losses.append(float(loss))  # Ensure loss is a Python scalar for easier handling
+                losses.append(float(loss))
             local_trained.append((W, b))
             local_loss_history.append(losses)
         else:
@@ -98,15 +105,12 @@ def aggregate_forecasts_mpi(ensemble, X, horizon):
     rank = comm.Get_rank()
     size = comm.Get_size()
 
-    # Debug: Validate ensemble is not None
     if ensemble is None:
         raise ValueError(f"Rank {rank}: Received None for ensemble. Ensure training and broadcast are correct.")
 
-    # Dynamic forecaster distribution
     local_ensemble = [ensemble[i] for i in range(len(ensemble)) if i % size == rank]
     local_predictions = []
 
-    # Generate predictions locally
     for idx, (W, b) in enumerate(local_ensemble):
         y_predicted = forecast(horizon, X, W, b)
         print(f"Rank {rank}: Forecaster {idx} generated prediction with shape {y_predicted.shape}.")
@@ -130,8 +134,6 @@ def aggregate_forecasts_mpi(ensemble, X, horizon):
     return None
 
 
-
-# Debugging and Profiling Utilities
 def debug_and_profile(rank, stage, start_time, end_time, additional_info=""):
     """
     Helper function to log timing and debugging information.
@@ -145,3 +147,70 @@ def debug_and_profile(rank, stage, start_time, end_time, additional_info=""):
     """
     elapsed_time = end_time - start_time
     print(f"Rank {rank}: {stage} completed in {elapsed_time:.4f} seconds. {additional_info}")
+
+
+def export_statistics_to_csv(predictions, loss_history, horizon, stats_folder="stats"):
+    """
+    Export prediction statistics and loss statistics to separate CSV files in the specified folder.
+
+    Args:
+        predictions: A 3D numpy array of shape (num_forecasters, time_steps, features).
+        loss_history: A 2D list or array of shape (num_forecasters, num_epochs) containing the loss history.
+        horizon: Number of time steps to forecast.
+        stats_folder: Folder where statistics files will be saved.
+    """
+    ensure_dir(stats_folder)
+
+    output_file_predictions = os.path.join(stats_folder, "prediction_stats.csv")
+    output_file_loss = os.path.join(stats_folder, "loss_stats.csv")
+
+    num_forecasters, time_steps, features = predictions.shape
+
+    mean_predictions = predictions.mean(axis=0)
+    std_predictions = predictions.std(axis=0)  
+    quantiles_5th = np.percentile(predictions, 5, axis=0)
+    quantiles_50th = np.percentile(predictions, 50, axis=0)
+    quantiles_95th = np.percentile(predictions, 95, axis=0)
+
+    prediction_data = {
+        "Time Step": [],
+        "Feature": [],
+        "Mean Prediction": [],
+        "Standard Deviation": [],
+        "5th Percentile": [],
+        "Median (50th Percentile)": [],
+        "95th Percentile": []
+    }
+
+    for t in range(time_steps):
+        for f in range(features):
+            prediction_data["Time Step"].append(t + 1)
+            prediction_data["Feature"].append(f + 1)
+            prediction_data["Mean Prediction"].append(mean_predictions[t, f])
+            prediction_data["Standard Deviation"].append(std_predictions[t, f])
+            prediction_data["5th Percentile"].append(quantiles_5th[t, f])
+            prediction_data["Median (50th Percentile)"].append(quantiles_50th[t, f])
+            prediction_data["95th Percentile"].append(quantiles_95th[t, f])
+
+    df_predictions = pd.DataFrame(prediction_data)
+    df_predictions.to_csv(output_file_predictions, index=False)
+    print(f"Prediction statistics exported to {output_file_predictions}")
+
+    # Compute loss statistics across forecasters
+    loss_array = np.array(loss_history)  # Convert to array for easier computation
+    loss_mean = loss_array.mean(axis=0)  # Mean loss per epoch
+    loss_std = loss_array.std(axis=0)    # Std deviation loss per epoch
+    loss_min = loss_array.min(axis=0)    # Minimum loss per epoch
+    loss_max = loss_array.max(axis=0)    # Maximum loss per epoch
+
+    loss_data = {
+        "Epoch": list(range(1, loss_array.shape[1] + 1)),
+        "Mean Loss": list(loss_mean),
+        "Std Dev Loss": list(loss_std),
+        "Min Loss": list(loss_min),
+        "Max Loss": list(loss_max),
+    }
+
+    df_loss = pd.DataFrame(loss_data)
+    df_loss.to_csv(output_file_loss, index=False)
+    print(f"Loss statistics exported to {output_file_loss}")

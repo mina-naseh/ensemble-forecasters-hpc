@@ -2,17 +2,18 @@ from mpi4py import MPI
 import jax
 import jax.numpy as jnp
 from forecaster import forecast_1step_with_loss
-from ensemble import create_ensemble, train_ensemble_mpi, aggregate_forecasts_mpi
+from ensemble import create_ensemble, train_ensemble_mpi, aggregate_forecasts_mpi, export_statistics_to_csv
 from config import X, y, W, b, num_forecasters, noise_std, num_epochs, horizon
 from plotter import (
-    plot_prediction_trajectories,
+    plot_random_forecasters,
     plot_uncertainty,
-    plot_prediction_distribution,
-    plot_training_loss,
-    plot_prediction_heatmap
+    plot_random_forecasters_loss,
+    plot_quantiles,
 )
 import os
 import time
+import numpy as np
+
 
 def main():
     comm = MPI.COMM_WORLD
@@ -33,7 +34,7 @@ def main():
     # Gradient computation
     grad = jax.grad(forecast_1step_with_loss)
 
-    comm.Barrier()  # Synchronize before creating or broadcasting the ensemble
+    comm.Barrier()  # Synchronize before creating the ensemble
     if rank == 0:
         print("Rank 0: Creating ensemble...")
         ensemble = create_ensemble(num_forecasters, W, b, noise_std)
@@ -72,24 +73,31 @@ def main():
             predictions = jnp.array(predictions)
             print(f"Rank 0: Predictions: {predictions}")
 
-            # Calculate statistics
             mean_prediction = jnp.mean(predictions, axis=0)
             std_dev = jnp.std(predictions, axis=0)
             print(f"Rank 0: Mean prediction: {mean_prediction}")
             print(f"Rank 0: Standard deviation: {std_dev}\n")
 
-            # Create plots
             print("Rank 0: Generating plots...")
             os.makedirs("plots", exist_ok=True)
-            plot_prediction_trajectories(predictions, horizon)
             plot_uncertainty(mean_prediction, std_dev, horizon)
-            plot_prediction_distribution(predictions)
-            plot_prediction_heatmap(predictions)
+            plot_quantiles(predictions, horizon)
 
-            # Plot training loss if loss history is available
             if loss_history is not None:
-                # print(f"Loss history: {loss_history}")
-                plot_training_loss(loss_history)
+                num_random_forecasters = 4
+                random_indices = np.random.choice(num_forecasters, num_random_forecasters, replace=False)
+
+                print(f"Randomly selected forecaster indices: {random_indices}")
+
+                plot_random_forecasters(predictions, horizon, num_random_forecasters=len(random_indices))
+                plot_random_forecasters_loss(loss_history, random_indices, num_epochs)
+                export_statistics_to_csv(
+                    predictions=predictions,
+                    loss_history=loss_history,
+                    horizon=5,
+                    stats_folder="stats"
+                )
+
 
             print("Rank 0: All plots saved in the 'plots/' directory.")
     
