@@ -90,46 +90,45 @@ def train_ensemble_mpi(ensemble, X, y, grad, num_epochs, track_loss=False):
     return None, None
 
 
-# Aggregate predictions from the ensemble using MPI
 def aggregate_forecasts_mpi(ensemble, X, horizon):
     """
     Aggregate predictions from the ensemble using MPI.
-
-    Args:
-        ensemble: Trained ensemble of forecasters.
-        X: Input data.
-        horizon: Number of time steps to forecast.
-
-    Returns:
-        All predictions from the ensemble (on rank 0).
     """
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
     size = comm.Get_size()
 
+    # Debug: Validate ensemble is not None
+    if ensemble is None:
+        raise ValueError(f"Rank {rank}: Received None for ensemble. Ensure training and broadcast are correct.")
+
     # Dynamic forecaster distribution
-    local_ensemble = [
-        ensemble[i] for i in range(len(ensemble)) if i % size == rank
-    ]
+    local_ensemble = [ensemble[i] for i in range(len(ensemble)) if i % size == rank]
     local_predictions = []
 
     # Generate predictions locally
-    for W, b in local_ensemble:
+    for idx, (W, b) in enumerate(local_ensemble):
         y_predicted = forecast(horizon, X, W, b)
-        print(f"Rank {rank}: Generated prediction with shape {y_predicted.shape}.")
+        print(f"Rank {rank}: Forecaster {idx} generated prediction with shape {y_predicted.shape}.")
         local_predictions.append(y_predicted)
-        print("local_predictions", local_predictions)
 
     # Gather predictions on rank 0
     print(f"Rank {rank}: Entering comm.gather with {len(local_predictions)} predictions.")
-    gathered_predictions = comm.gather(local_predictions, root=0)
+    try:
+        gathered_predictions = comm.gather(local_predictions, root=0)
+    except Exception as e:
+        raise RuntimeError(f"Rank {rank}: Error during comm.gather - {e}")
+
     print(f"Rank {rank}: Finished comm.gather.")
 
     if rank == 0:
         # Combine results from all ranks
+        if not gathered_predictions:
+            raise ValueError("Rank 0: Gathered predictions are empty or None.")
         all_predictions = [pred for rank_preds in gathered_predictions for pred in rank_preds]
         return all_predictions
     return None
+
 
 
 # Debugging and Profiling Utilities
